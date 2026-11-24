@@ -1,6 +1,9 @@
+
 <!DOCTYPE html>
-<html>
+<html lang="ru">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Калькулятор матрасов</title>
     <style>
         body {
@@ -162,7 +165,6 @@
             font-size: 14px;
             color: #555;
         }
-
         .price-choices {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(195px, 1fr));
@@ -179,16 +181,28 @@
             margin: 0 0 10px;
             color: #2c3e50;
         }
-        .price-option p { margin: 7px 0; }
-        .price-option .recommended-price { font-size: 22px; }
-        .price-note { font-size: 13px; color: #627283; margin: 4px 0 12px; }
-        .grand-total { border-top: 1px solid #d6e4ed; margin-top: 15px; padding-top: 12px; }
+        .price-option p {
+            margin: 7px 0;
+        }
+        .price-option .recommended-price {
+            font-size: 22px;
+        }
+        .price-note {
+            font-size: 13px;
+            color: #627283;
+            margin: 4px 0 12px;
+        }
+        .grand-total {
+            border-top: 1px solid #d6e4ed;
+            margin-top: 15px;
+            padding-top: 12px;
+        }
     </style>
 </head>
 <body>
     <div class="calculator">
         <h1>Калькулятор матрасов</h1>
-        
+
         <div class="selector-group">
             <h3>Форма матраса:</h3>
             <div class="type-selector">
@@ -196,7 +210,7 @@
                 <div class="type-btn" data-type="bangs">С челкой</div>
                 <div class="type-btn" data-type="trapezoid">Трапеция</div>
             </div>
-            
+
             <h3>Расположение:</h3>
             <div class="location-selector">
                 <div class="location-btn active" data-location="windowsill">На подоконник</div>
@@ -204,14 +218,13 @@
             </div>
         </div>
 
-
         <div class="quick-input">
             <label for="quick-size">Быстрый ввод размеров:</label>
             <input type="text" id="quick-size" placeholder="Например: 140x50x8 или 140*150*45*8">
             <div class="dimension-hint">Введите размеры через x или * (140x50x8 для обычного, 140x150x45x8 для трапеции)</div>
             <button id="apply-sizes">Применить размеры</button>
         </div>
-        
+
         <div id="regular-tab" class="tab active">
             <div class="input-group">
                 <label for="length">Длина (см):</label>
@@ -226,7 +239,7 @@
                 <input type="number" id="height" value="8">
             </div>
         </div>
-        
+
         <div id="trapezoid-tab" class="tab">
             <div class="input-group">
                 <label for="top-length">Длина верха (см):</label>
@@ -250,35 +263,40 @@
             <label for="quantity">Количество матрасов:</label>
             <input type="number" id="quantity" value="1" min="1" class="quantity-input">
         </div>
-        
+
         <button id="calculate-btn">Рассчитать стоимость</button>
         <button class="add-mattress-btn" id="add-mattress" style="display: none;">+ Добавить еще матрас</button>
         <button class="reset-btn" id="reset-calc" style="display: none;">Сбросить все</button>
-        
+
         <div class="result" id="result">
             Введите параметры и нажмите "Рассчитать"
         </div>
-        
+
         <div class="additional-panel" id="additional-panel">
             <h3>Тексты для копирования (нажмите на текст):</h3>
 
-
             <div class="copy-text" id="price-text-block">
-                <div id="price-text"><!-- Текст будет сгенерирован автоматически --></div>
+                <div id="price-text"></div>
                 <span class="copy-notification">Скопировано!</span>
             </div>
-            
+
             <div class="copy-text" id="additional-offers-block">
-                <div id="additional-offers"><!-- Текст будет сгенерирован автоматически --></div>
+                <div id="additional-offers"></div>
                 <span class="copy-notification">Скопировано!</span>
             </div>
         </div>
     </div>
 
     <script>
-        // В расчетах используются две палитры ткани, каждая цена выводится отдельно.
-        const FABRIC_RATES = { standard: 300, premium: 650 }; // руб. за погонный метр
+        // Тарифы ткани за погонный метр.
+        const FABRIC_RATES = {
+            standard: 300,
+            premium: 650
+        };
+
+        // Множитель цены.
         const PRICE_MULTIPLIER = 4;
+
         const mattresses = [];
         let selectedLocation = 'windowsill';
 
@@ -287,10 +305,15 @@
                 btn.addEventListener('click', () => {
                     document.querySelectorAll('.type-btn').forEach(b => b.classList.remove('active'));
                     btn.classList.add('active');
+
                     document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
-                    document.getElementById(btn.dataset.type === 'trapezoid' ? 'trapezoid-tab' : 'regular-tab').classList.add('active');
+
+                    document.getElementById(
+                        btn.dataset.type === 'trapezoid' ? 'trapezoid-tab' : 'regular-tab'
+                    ).classList.add('active');
                 });
             });
+
             document.querySelectorAll('.location-btn').forEach(btn => {
                 btn.addEventListener('click', () => {
                     document.querySelectorAll('.location-btn').forEach(b => b.classList.remove('active'));
@@ -298,12 +321,14 @@
                     selectedLocation = btn.dataset.location;
                 });
             });
+
             document.getElementById('apply-sizes').addEventListener('click', parseQuickInput);
             document.getElementById('calculate-btn').addEventListener('click', calculate);
             document.getElementById('add-mattress').addEventListener('click', addMattress);
             document.getElementById('reset-calc').addEventListener('click', resetCalculator);
             document.getElementById('price-text-block').addEventListener('click', copyToClipboard);
             document.getElementById('additional-offers-block').addEventListener('click', copyToClipboard);
+
             document.getElementById('quick-size').addEventListener('keydown', e => {
                 if (e.key === 'Enter') parseQuickInput();
             });
@@ -311,116 +336,203 @@
 
         function parseQuickInput() {
             const input = document.getElementById('quick-size').value.trim();
-            const normalized = input.replace(/\s+/g, '').replace(/[*,хХ×X]/g, 'x').replace(/,/g, '.');
+            const normalized = input
+                .replace(/\s+/g, '')
+                .replace(/[*,хХ×X]/g, 'x')
+                .replace(/,/g, '.');
+
             const dimensions = normalized.split('x').map(Number);
-            if (![3, 4].includes(dimensions.length) || dimensions.some(n => !Number.isFinite(n) || n <= 0)) {
+
+            if (
+                ![3, 4].includes(dimensions.length) ||
+                dimensions.some(n => !Number.isFinite(n) || n <= 0)
+            ) {
                 alert('Введите положительные размеры в формате: 140x50x8 (обычный) или 140x150x45x8 (трапеция). Можно использовать x, х, * или ×.');
                 return;
             }
+
             if (dimensions.length === 3) {
-                // При вводе трех размеров сохраняем выбранную форму «С челкой».
                 if (document.querySelector('.type-btn.active').dataset.type !== 'bangs') {
                     document.querySelector('.type-btn[data-type="regular"]').click();
                 }
-                ['length', 'width', 'height'].forEach((id, i) => document.getElementById(id).value = dimensions[i]);
+
+                ['length', 'width', 'height'].forEach(
+                    (id, i) => document.getElementById(id).value = dimensions[i]
+                );
             } else {
                 document.querySelector('.type-btn[data-type="trapezoid"]').click();
-                ['top-length', 'bottom-length', 'depth', 'trap-height'].forEach((id, i) => document.getElementById(id).value = dimensions[i]);
+
+                ['top-length', 'bottom-length', 'depth', 'trap-height'].forEach(
+                    (id, i) => document.getElementById(id).value = dimensions[i]
+                );
             }
         }
 
         function getRecommendedPrice(price) {
             const thousands = Math.floor(price / 1000);
             const remainder = price % 1000;
-            if (remainder < 200) return thousands * 1000 - 10;
-            if (remainder < 700) return thousands * 1000 + 490;
+
+            if (remainder < 200) {
+                return thousands * 1000 - 10;
+            }
+
+            if (remainder < 700) {
+                return thousands * 1000 + 490;
+            }
+
             return thousands * 1000 + 990;
         }
 
         function readPositiveNumber(id) {
             const value = Number(document.getElementById(id).value);
-            if (!Number.isFinite(value) || value <= 0) throw new Error('Все размеры должны быть больше нуля.');
+
+            if (!Number.isFinite(value) || value <= 0) {
+                throw new Error('Все размеры должны быть больше нуля.');
+            }
+
             return value;
         }
 
         function calculate() {
             const type = document.querySelector('.type-btn.active').dataset.type;
             const quantity = Number(document.getElementById('quantity').value);
+
             if (!Number.isInteger(quantity) || quantity < 1) {
                 alert('Количество матрасов должно быть целым числом от 1.');
                 return;
             }
-            let length, width, height, topLength = null, bottomLength = null, depth = null;
+
+            let length, width, height;
+            let topLength = null;
+            let bottomLength = null;
+            let depth = null;
             let foamCost, fabricMeters, sewingCost;
+
             try {
                 if (type === 'regular' || type === 'bangs') {
                     length = readPositiveNumber('length');
                     width = readPositiveNumber('width');
                     height = readPositiveNumber('height');
+
                     const foamVolume = length * width * height / 1000000;
                     foamCost = foamVolume * 25 * 550;
-                    const girth = 2 * width + 2 * height + 1;
-                    fabricMeters = (girth <= 141 ? length + 2 : 2 * (length + 2)) / 100;
+
+                    // Для матраса с челкой прибавляем 59 см к обороту.
+                    const girth =
+                        2 * width +
+                        2 * height +
+                        1 +
+                        (type === 'bangs' ? 59 : 0);
+
+                    // Удваиваем расход, если оборот больше 141 см.
+                    fabricMeters = (
+                        girth <= 141 ?
+                        length + 2 :
+                        2 * (length + 2)
+                    ) / 100;
+
                 } else {
                     topLength = readPositiveNumber('top-length');
                     bottomLength = readPositiveNumber('bottom-length');
                     depth = readPositiveNumber('depth');
                     height = readPositiveNumber('trap-height');
+
                     length = Math.max(topLength, bottomLength);
+
                     const foamVolume = length * depth * height / 1000000;
                     foamCost = foamVolume * 25 * 550;
+
                     const girth = 2 * depth + 2 * height + 1;
-                    fabricMeters = (girth <= 141 ? length + 2 : 2 * (length + 2)) / 100;
+
+                    fabricMeters = (
+                        girth <= 141 ?
+                        length + 2 :
+                        2 * (length + 2)
+                    ) / 100;
                 }
             } catch (error) {
                 alert(error.message);
                 return;
             }
-            fabricMeters = Math.ceil(fabricMeters / 0.5) * 0.5;
-            // Для матраса «С челкой» расход ткани всегда вдвое больше,
-            // чем для обычного матраса тех же размеров.
-            if (type === 'bangs') fabricMeters *= 2;
-            if (length <= 199.9) sewingCost = 500;
-            else if (length <= 299.9) sewingCost = 750;
-            else if (length <= 399.9) sewingCost = 1000;
-            else sewingCost = 1250;
-            if (type === 'trapezoid') sewingCost += 250;
-            // Форма «С челкой»: обычный матрас + 1250 руб. к себестоимости.
-            if (type === 'bangs') sewingCost += 1250;
 
+            // Округление расхода ткани вверх до 0,5 метра.
+            fabricMeters = Math.ceil(fabricMeters / 0.5) * 0.5;
+
+            // Стоимость пошива.
+            if (length <= 199.9) {
+                sewingCost = 500;
+            } else if (length <= 299.9) {
+                sewingCost = 750;
+            } else if (length <= 399.9) {
+                sewingCost = 1000;
+            } else {
+                sewingCost = 1250;
+            }
+
+            // Доплата за трапецию.
+            if (type === 'trapezoid') {
+                sewingCost += 250;
+            }
+
+            // Доплата за матрас с челкой:
+            // 250 рублей + 100 рублей за каждые начатые 20 см.
+            if (type === 'bangs') {
+                sewingCost += 250 + Math.ceil(length / 20) * 100;
+            }
+
+            // Расчет обеих категорий ткани.
             const priceFor = rate => {
-                const realCost = foamCost + sewingCost + fabricMeters * rate;
+                const realCost =
+                    foamCost +
+                    sewingCost +
+                    fabricMeters * rate;
+
                 const totalCost = realCost * PRICE_MULTIPLIER;
+
                 return {
                     realCost: Math.round(realCost),
                     totalCost: Math.round(totalCost),
                     recommended: Math.round(getRecommendedPrice(totalCost))
                 };
             };
+
             const key = type === 'trapezoid'
                 ? `${topLength}x${bottomLength}x${depth}x${height}`
                 : `${length}x${width}x${height}`;
+
             mattresses.push({
-                key, type, location: selectedLocation, length, width, height,
-                topLength, bottomLength, depth,
-                count: quantity, fabricMeters,
+                key,
+                type,
+                location: selectedLocation,
+                length,
+                width,
+                height,
+                topLength,
+                bottomLength,
+                depth,
+                count: quantity,
+                fabricMeters,
                 standard: priceFor(FABRIC_RATES.standard),
                 premium: priceFor(FABRIC_RATES.premium)
             });
+
             updateResultDisplay();
             generateTexts();
         }
 
         function groupMattresses() {
             const groups = new Map();
+
             mattresses.forEach(m => {
                 const key = `${m.type}|${m.location}|${m.key}`;
+
                 if (groups.has(key)) {
                     groups.get(key).count += m.count;
                 } else {
                     groups.set(key, { ...m });
                 }
             });
+
             return Array.from(groups.values());
         }
 
@@ -441,10 +553,17 @@
         function updateResultDisplay() {
             const resultDiv = document.getElementById('result');
             const groups = groupMattresses();
+
             let html = '<h3>Результаты расчета:</h3>';
+
             groups.forEach(m => {
-                const typeName = m.type === 'trapezoid' ? 'Трапеция' : m.type === 'bangs' ? 'С челкой' : 'Обычный';
-                const locationName = m.location === 'hallway' ? 'в прихожую' : 'на подоконник';
+                const typeName =
+                    m.type === 'trapezoid' ? 'Трапеция' :
+                    m.type === 'bangs' ? 'С челкой' : 'Обычный';
+
+                const locationName =
+                    m.location === 'hallway' ? 'в прихожую' : 'на подоконник';
+
                 html += `<div class="mattress-group">
                     <p><strong>Тип матраса:</strong> ${typeName} (${locationName})</p>
                     <p><strong>Размер:</strong> ${m.key.replace(/x/g, '×')} см</p>
@@ -456,15 +575,27 @@
                     </div>
                 </div>`;
             });
+
             if (mattresses.length > 1 || mattresses[0].count > 1) {
-                const total = palette => mattresses.reduce((sum, m) => sum + m[palette].recommended * m.count, 0);
+                const total = palette =>
+                    mattresses.reduce(
+                        (sum, m) => sum + m[palette].recommended * m.count,
+                        0
+                    );
+
                 html += `<div class="grand-total">
                     <strong>Итого (если все матрасы в одной категории ткани):</strong>
-                    <p>В стандартной ткани: <span class="recommended-price">${formatMoney(total('standard'))}</span></p>
-                    <p>В премиум ткани: <span class="recommended-price">${formatMoney(total('premium'))}</span></p>
+                    <p>В стандартной ткани:
+                        <span class="recommended-price">${formatMoney(total('standard'))}</span>
+                    </p>
+                    <p>В премиум ткани:
+                        <span class="recommended-price">${formatMoney(total('premium'))}</span>
+                    </p>
                 </div>`;
             }
+
             resultDiv.innerHTML = html;
+
             document.getElementById('add-mattress').style.display = 'block';
             document.getElementById('reset-calc').style.display = 'block';
             document.getElementById('additional-panel').style.display = 'block';
@@ -472,21 +603,39 @@
 
         function generateTexts() {
             let priceText = '✍️ЦЕНА:\n';
+
             const groups = groupMattresses();
+
             groups.forEach((m, index) => {
                 const dimensions = m.key.replace(/x/g, '*');
                 const standardTotal = m.standard.recommended * m.count;
                 const premiumTotal = m.premium.recommended * m.count;
-                if (index > 0) priceText += '\n';
+
+                if (index > 0) {
+                    priceText += '\n';
+                }
+
                 priceText += `☁️Матрас${m.type === 'bangs' ? ' с челкой' : ''} ${m.height} см в высоту:\n\n`;
+
                 priceText += `Размер ${dimensions}${m.count > 1 ? ` — ${m.count} шт.` : ''}:\n`;
+
                 priceText += `В стандартной ткани: ${formatMoney(standardTotal)}`;
-                if (m.count > 1) priceText += ` (${formatMoney(m.standard.recommended)} × ${m.count})`;
+
+                if (m.count > 1) {
+                    priceText += ` (${formatMoney(m.standard.recommended)} × ${m.count})`;
+                }
+
                 priceText += '\n';
+
                 priceText += `В премиум ткани: ${formatMoney(premiumTotal)}`;
-                if (m.count > 1) priceText += ` (${formatMoney(m.premium.recommended)} × ${m.count})`;
+
+                if (m.count > 1) {
+                    priceText += ` (${formatMoney(m.premium.recommended)} × ${m.count})`;
+                }
+
                 priceText += '\n';
             });
+
             document.getElementById('price-text').textContent = priceText.trimEnd();
 
             const offersText = [
@@ -509,29 +658,50 @@
                 '',
                 '🤝Гарантия 1 год!'
             ].join('\n');
+
             document.getElementById('additional-offers').textContent = offersText;
         }
 
         function addMattress() {
             document.getElementById('quantity').value = 1;
-            const activeType = document.querySelector('.type-btn.active').dataset.type;
-            document.getElementById(activeType === 'trapezoid' ? 'top-length' : 'length').focus();
+
+            const activeType =
+                document.querySelector('.type-btn.active').dataset.type;
+
+            document.getElementById(
+                activeType === 'trapezoid' ? 'top-length' : 'length'
+            ).focus();
         }
 
         function resetCalculator() {
             mattresses.length = 0;
+
             const defaults = {
-                'length': 140, 'width': 50, 'height': 8,
-                'top-length': 140, 'bottom-length': 150, 'depth': 45, 'trap-height': 8,
-                'quantity': 1, 'quick-size': ''
+                'length': 140,
+                'width': 50,
+                'height': 8,
+                'top-length': 140,
+                'bottom-length': 150,
+                'depth': 45,
+                'trap-height': 8,
+                'quantity': 1,
+                'quick-size': ''
             };
-            Object.entries(defaults).forEach(([id, value]) => document.getElementById(id).value = value);
+
+            Object.entries(defaults).forEach(([id, value]) => {
+                document.getElementById(id).value = value;
+            });
+
             document.querySelector('.type-btn[data-type="regular"]').click();
             document.querySelector('.location-btn[data-location="windowsill"]').click();
-            document.getElementById('result').textContent = 'Введите параметры и нажмите "Рассчитать"';
+
+            document.getElementById('result').textContent =
+                'Введите параметры и нажмите "Рассчитать"';
+
             ['additional-panel', 'add-mattress', 'reset-calc'].forEach(id => {
                 document.getElementById(id).style.display = 'none';
             });
+
             document.getElementById('price-text').textContent = '';
             document.getElementById('additional-offers').textContent = '';
         }
@@ -539,10 +709,16 @@
         function copyToClipboard(event) {
             const block = event.currentTarget;
             const text = block.querySelector('div').textContent;
+
             navigator.clipboard.writeText(text).then(() => {
-                const notification = block.querySelector('.copy-notification');
+                const notification =
+                    block.querySelector('.copy-notification');
+
                 notification.style.display = 'inline';
-                setTimeout(() => notification.style.display = 'none', 2000);
+
+                setTimeout(() => {
+                    notification.style.display = 'none';
+                }, 2000);
             }).catch(() => {
                 alert('Не удалось скопировать текст автоматически. Выделите текст и скопируйте вручную.');
             });
